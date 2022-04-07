@@ -20,9 +20,10 @@ class ParentCategoryController extends Controller
 
     public function save(Request $request)
     {
+        $unique = $request->has('id') ? ",name,$request->id" :'' ;
         $validatedData = $request->validate(
             [
-                'name' => 'required|unique:parent_category|max:50',
+                'name' => 'required|unique:parent_category'.$unique . '|max:50',
                 'status' => 'required',
             ],
             [
@@ -32,9 +33,9 @@ class ParentCategoryController extends Controller
                 'status.required' => 'Trạng thái không được để trống'
             ]
         );
-        if($request->has('id')){
+        if ($request->has('id')) {
             $model = ParentCategory::find($request->id);
-        }else{
+        } else {
             $model = new ParentCategory();
         }
         $model->fill($request->all());
@@ -43,12 +44,14 @@ class ParentCategoryController extends Controller
         return redirect()->route('parent-cate.index');
     }
 
-    public function edit($id){
+    public function edit($id)
+    {
         $data = ParentCategory::find($id);
-        return view('parent_category.form-data',compact('data'));
+        return view('parent_category.form-data', compact('data'));
     }
 
-    public function delete($id){
+    public function delete($id)
+    {
         ParentCategory::destroy($id);
         return redirect()->route('parent-cate.index');
     }

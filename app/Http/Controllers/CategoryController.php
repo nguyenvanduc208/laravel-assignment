@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Category;
+use App\Models\ParentCategory;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 
@@ -9,52 +11,74 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
-    public function index(){
+    public function index()
+    {
         //Ellquent
         //all rất cả bản ghi
         $categories = Category::all();
         //get : lấy ra toàn bộ các bản ghi, kết hợp  được với câu điều kiện
         //get : sẽ nằm cuối
         $categoriesGet = Category::select('*')
-        // ->where('id', '>', 3 )
-        // ->get();
-        ->orderBy('id','desc')
-        ->paginate(10);
+            // ->where('id', '>', 3 )
+            // ->get();
+            ->with('parentCategory')
+            ->orderBy('id', 'desc')
+            ->paginate(10);
         return view('category.index', ['categories' =>  $categoriesGet]);
         // dd('danh sách category', $categories, $categoriesGet);
-        
-    }
-    public function create()
-    {
-        return view('category.create');
-    }
-    public function store(Request $request)
-   
-    {
-        $request->validate([
-            // nam nao se validate dieu kien gi
-            'name'=>'required',
-            
-        ]);
-        // neu co loi trong dieu kien truyen vao thi tu dong ket thuc
-        // ham quay tro lai form kem bien $errors
 
-        $categoryRequest = $request->all();
-        $category = new Category();
-        $category->name = $categoryRequest['name'];
-        $category->description = $categoryRequest['description'];
-        $category->status = $categoryRequest['status'];
-        $category->slug = Str::slug($categoryRequest['name']) . '-' . uniqid();
-        // use Illuminate\Support\Str;
+    }
+    public function add()
+    {
+        $parentCategory = ParentCategory::all();
+        return view('category.create', compact('parentCategory'));
+    }
+    public function save(Request $request)
 
-        $category->save();
+    {   
+        $unique = $request->has('id') ? ",name,$request->id" :'' ;
+        $request->validate(
+            [
+                // nam nao se validate dieu kien gi
+                'name' => 'required|max:50|unique:categories'.$unique ,
+                'description' => 'required',
+                'status' => 'required',
+                'parent_id' => 'required'
+
+            ],
+            [
+                'name.required' => 'Tên không được để trống',
+                'name.unique' => 'Tên danh mục đã tồn tại',
+                'name.max' => 'Tên danh mục không được quá 50 ký tự',
+                'description.required' => 'Chi tiết không được để trống',
+                'status.required' => ' Trạng thái không được để trống',
+                'parent_id.required' => 'Danh mục cha không được để trống'
+            ]
+        );
+
+        if($request->has('id')){
+            $model = Category::find($request->id);
+        }else{
+            $model = new Category();
+        }
+
+        $model->fill($request->all());
+        $model->save();
+
+
 
         return redirect()->route('categories.index');
     }
-    public function edit(Category $id){
-        return view('category.create', ['category' => $id]);
+    public function edit(Category $id)
+    {
+        $parentCategory = ParentCategory::all();
+        return view('category.create', [
+            'category' => $id,
+            'parentCategory' => $parentCategory
+        ]);
     }
-    public function delete(Category $cate) {
+    public function delete(Category $cate)
+    {
         // Neu muon su dung model binding
         // 1. Dinh nghia kieu tham so truyen vao la model tuong ung
         // 2. Tham so o route === ten tham so truyen vao ham
@@ -74,22 +98,5 @@ class CategoryController extends Controller
         // Cach 2: delete, tra ve true hoac false
         // $category = Category::find($id);
         // $category->delete();
-    }
-    public function update(Request $request, Category $id)
-    {
-        $cateUpdate=$id;
-        $cateUpdate->name=$request->name;
-        $cateUpdate->description =$request->description;
-        $cateUpdate->slug = Str::Slug($request->name) . '-'. uniqid();
-        $cateUpdate->status =$request->status;
-        $cateUpdate->Update();
-        // $category = Category::find($id);
-        // $category->name = $request->name;
-        // $category->description = $request->description;
-        // $category->status = $request->status;
-        // $category->slug = Str::slug($request->name);
-        // $category->save();
-
-        return redirect()->route('categories.index');
     }
 }

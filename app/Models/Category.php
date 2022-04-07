@@ -14,10 +14,14 @@ class Category extends Model
     protected $fillable = [
         'name',
         'description',
-        'status',
-        'slug'
+        'status', 
+        'parent_id'
     ];
     public function products(){
         return $this->hasMany(Product::class,'category_id','id');
+    }
+
+    public function parentCategory(){
+        return $this->belongsTo(ParentCategory::class,'parent_id');
     }
 }

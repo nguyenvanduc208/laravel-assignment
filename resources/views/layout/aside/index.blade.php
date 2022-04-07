@@ -47,17 +47,17 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{route('parent-cate.index')}}" class="nav-link {{Route::is('parent-cate.index') ? 'active' : ''}}">
+                    <a href="{{route('parent-cate.index')}}" class="nav-link {{ strpos(url()->current() , '/parentcate') ? 'active' : ''}}">
                         <p>Parent Category</p>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{route('categories.index')}}" class="nav-link {{Route::is('categories.index') ? 'active' : ''}}">
+                    <a href="{{route('categories.index')}}" class="nav-link {{ strpos(url()->current() , '/categories') ? 'active' : ''}}">
                         <p>Category</p>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{route('products.index')}}" class="nav-link {{Route::is('products.index') ? 'active' : ''}}">
+                    <a href="{{route('products.index')}}" class="nav-link {{ strpos(url()->current() , '/products') ? 'active' : ''}}">
                         <p>Product</p>
                     </a>
                 </li>
