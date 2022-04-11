@@ -1,11 +1,11 @@
 {{-- Home sẽ kế thừ viiew master --}}
 @extends('layout.master')
 {{-- section sẽ thay đổi phần yeild trong master --}}
-@section('title', 'Category page')
-@section('content-title', 'Category page')
+@section('title', 'Product page')
+@section('content-title', 'Product page')
 @section('content')
 <div>
-    <a href="{{route('products.create')}}">
+    <a href="{{route('products.add')}}">
         <button class="btn btn-primary">Create</button>
     </a>
 </div>

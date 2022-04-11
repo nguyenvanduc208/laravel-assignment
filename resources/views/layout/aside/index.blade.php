@@ -10,13 +10,13 @@
     <div class="sidebar">
         <!-- Sidebar user (optional) -->
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-            <div class="image">
-                <img src="{{ asset('/img/user2-160x160.jpg') }}" class="img-circle elevation-2"
-                    alt="User Image">
-            </div>
+            @if (Auth::check())
             <div class="info">
-                <a href="#" class="d-block">Alexander Pierce</a>
+                <a href="#" class="d-block text-warning">{{ auth()->user()->name }}</a>
             </div>
+            @else
+                <a href="{{ route('login') }}" class="btn btn-primary">Log in</a>
+            @endif
         </div>
 
         <!-- SidebarSearch Form -->
@@ -62,10 +62,18 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{route('users.index')}}" class="nav-link {{Route::is('users.index') ? 'active' : ''}}">
+                    <a href="{{route('user.index')}}" class="nav-link {{Route::is('user.index') ? 'active' : ''}}">
                         <p>Users</p>
                     </a>
                 </li>
+                {{-- Nếu đã đăng nhập thì mới hiện Logout --}}
+                @if (Auth::check()) 
+                <li class="nav-item">
+                    <a href="{{route('logout')}}" >
+                        <p class="text-danger">Log out</p>
+                    </a>
+                </li>
+                @endif
             </ul>
         </nav>
         <!-- /.sidebar-menu -->

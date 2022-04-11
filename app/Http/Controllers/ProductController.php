@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Support\Str;
 
@@ -22,11 +24,11 @@ class ProductController extends Controller
         //get : lấy ra toàn bộ các bản ghi, kết hợp  được với câu điều kiện
         //get : sẽ nằm cuối
         $productsGet = Product::select('*')
-        ->with('category')
-        // ->where('id', '>', 3 )
-        // ->get();
-        ->orderBy('id','desc')
-        ->paginate(10);
+            ->with('category')
+            // ->where('id', '>', 3 )
+            // ->get();
+            ->orderBy('id', 'desc')
+            ->paginate(10);
         return view('product.index', ['products' =>  $productsGet]);
         // dd('danh sách category', $categories, $categoriesGet);
         //
@@ -39,7 +41,7 @@ class ProductController extends Controller
      * @return \Illuminate\Http\Response
      */
     // Tao ban ghi product moi
-   
+
     /**
      * Display the specified resource.
      *
@@ -76,7 +78,8 @@ class ProductController extends Controller
     {
         //
     }
-    public function delete(Product $pro) {
+    public function delete(Product $pro)
+    {
         // Neu muon su dung model binding
         // 1. Dinh nghia kieu tham so truyen vao la model tuong ung
         // 2. Tham so o route === ten tham so truyen vao ham
@@ -97,34 +100,56 @@ class ProductController extends Controller
         // $category = Category::find($id);
         // $category->delete();
     }
-    public function create()
+    public function add()
     {
-        return view('product.create');
+        $cate = Category::all();
+        return view('product.create', compact('cate'));
     }
-    public function edit(Product $id){
-        return view('product.create', ['product' => $id]);
-    }
-    public function store(Request $request)
-   
+    public function edit(Product $id)
     {
-        $request->validate([
-            // nam nao se validate dieu kien gi
-            'name'=>'required',
-            
+        $cate = Category::all();
+        return view('product.create', [
+            'product' => $id,
+            'cate' => $cate
         ]);
-        // neu co loi trong dieu kien truyen vao thi tu dong ket thuc
-        // ham quay tro lai form kem bien $errors
+    }
+    public function save(Request $request)
 
-        $productRequest = $request->all();
-        $product = new Product();
-        $product->name = $productRequest['name'];
-        $product->description = $productRequest['description'];
-        $product->status = $productRequest['status'];
-        $product->slug = Str::slug($productRequest['name']) . '-' . uniqid();
-        // use Illuminate\Support\Str;
+    {
+        $unique = $request->has('id') ? ",name,$request->id" : '';
+        $request->validate(
+            [
+                // nam nao se validate dieu kien gi
+                'name' => 'required|unique:products' . $unique,
+                'description' => 'required',
+                'status' => 'required',
+                'price' => 'required|regex:/^\d+(\.\d{1,2})?$/',
+                'image_url' => 'required|url',
+                'category_id' => 'required'
 
-        $product->save();
+            ],
+            [
+                'name.required' => 'Tên không được để trống',
+                'name.unique' => 'Tên sản phẩm đã tồn tại',
+                'description.required' => 'Chi tiết không được để trống',
+                'status.required' => ' Trạng thái không được để trống',
+                'category_id.required' => 'Danh mục không được để trống',
+                'image_url.required' => 'Đường dẫn ảnh không được để trống',
+                'image_url.url' => 'Đường dẫn ảnh phải là một đường dẫn',
+                'price.required' => 'Giá sản phẩm không được để trống',
+                'price.regex' => 'Giá sản phẩm phải là một số',
+            ]
+        );
 
-        return redirect()->route('categories.index');
+        if ($request->has('id')) {
+            $model = Product::find($request->id);
+        } else {
+            $model = new Product();
+        }
+
+        $model->fill($request->all());
+        $model->save();
+
+        return redirect()->route('products.index');
     }
 }

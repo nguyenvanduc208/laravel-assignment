@@ -30,7 +30,7 @@
             <td>{{$category->id}}</td>
             <td>{{$category->name}}</td>
             <td>{{$category->description ?: 'N/A'}}</td>
-            <td>{{$category->parentCategory->name ?: 'N/A'}}</td>
+            <td>{{isset($category->parentCategory->name )? $category->parentCategory->name : 'N/A'}}</td>
             <td>{{$category->status == 1 ?  'Active' : 'Deactive'}} </td>
             <td>{{$category->created_at ?: 'N/A'}}</td>
             <td>{{$category->updated_at ?: 'N/A'}}</td>  

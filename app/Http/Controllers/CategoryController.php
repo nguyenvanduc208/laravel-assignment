@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\ParentCategory;
+use App\Models\Product;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 
@@ -22,7 +23,6 @@ class CategoryController extends Controller
             // ->where('id', '>', 3 )
             // ->get();
             ->with('parentCategory')
-            ->orderBy('id', 'desc')
             ->paginate(10);
         return view('category.index', ['categories' =>  $categoriesGet]);
         // dd('danh sách category', $categories, $categoriesGet);
@@ -79,24 +79,12 @@ class CategoryController extends Controller
     }
     public function delete(Category $cate)
     {
-        // Neu muon su dung model binding
-        // 1. Dinh nghia kieu tham so truyen vao la model tuong ung
-        // 2. Tham so o route === ten tham so truyen vao ham
-        if ($cate->delete()) {
-            return redirect()->route('categories.index');
+        $product = Product::where('category_id','=',$cate->id)->get();
+        foreach($product as $item){
+            $item->category_id = 1;
+            $item->save();
         }
-
-        // Cach 1: destroy, tra ve id cua thang duoc xoa
-        // Chi ap dung khi nhan vao tham so la gia tri
-        // Neu k xoa duoc thi tra ve 0
-        $categoryDelete = Category::destroy($cate);
-        if ($categoryDelete !== 0) {
-            return redirect()->route('categories.index');
-        }
-        // dd($categoryDelete);
-
-        // Cach 2: delete, tra ve true hoac false
-        // $category = Category::find($id);
-        // $category->delete();
+        ParentCategory::destroy($cate);
+        return redirect()->route('parent-cate.index');
     }
 }

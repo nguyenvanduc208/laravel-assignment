@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\ParentCategory;
 use Illuminate\Http\Request;
 
@@ -52,7 +53,12 @@ class ParentCategoryController extends Controller
 
     public function delete($id)
     {
+        $cate = Category::where('parent_id','=',$id)->get();
+        foreach($cate as $item){
+            $item->parent_id = 1;
+            $item->save();
+        }
         ParentCategory::destroy($id);
-        return redirect()->route('parent-cate.index');
+        return redirect()->route('products.index');
     }
 }
